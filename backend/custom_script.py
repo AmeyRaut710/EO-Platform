@@ -80,6 +80,11 @@ def validate_and_parse_script(script_text: str):
         e = e.replace("Math.min", "min")
         e = e.replace("Math.max", "max")
         
+        used_bands = set(re.findall(r'sample\.([a-zA-Z0-9_]+)\b', e))
+        for band in used_bands:
+            if band not in actual_bands:
+                raise ScriptValidationError(f"Band '{band}' is used in evaluatePixel but not declared in the setup input array.")
+
         # Map sample.BAND to just BAND
         # This allows the frontend to dynamically replace BAND with the correct STAC asset name
         for band in actual_bands:

@@ -45,10 +45,16 @@ function initMap() {
     maxZoom: 24
   });
 
-  // Base Maps (Bhuvan WMS & Esri)
-  const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+  const esriImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
     attribution: 'Tiles &copy; Esri'
   });
+
+  const esriLabels = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+    attribution: 'Tiles &copy; Esri',
+    zIndex: 200
+  });
+
+  const satellite = esriImagery;
 
   const bhuvanBaseAdmin = L.tileLayer.wms('https://bhuvan-vec1.nrsc.gov.in/bhuvan/gwc/service/wms', {
     layers: 'india3', 
@@ -61,15 +67,8 @@ function initMap() {
   // Default to Satellite
   satellite.addTo(map);
 
-  // Overlay Maps (Bhuvan WMS)
-  const bhuvanAdmin = L.tileLayer.wms('https://bhuvan-vec1.nrsc.gov.in/bhuvan/gwc/service/wms', {
-    layers: 'bhuvan_no_data', // Generic placeholder for actual Bhuvan admin layer
-    format: 'image/png',
-    transparent: true,
-    version: '1.1.1',
-    attribution: 'NRSC/ISRO Bhuvan',
-    zIndex: 200
-  });
+  // Overlay Maps
+  const bhuvanAdmin = esriLabels;
 
   const infrastructure = L.tileLayer.wms('https://bhuvan-vec1.nrsc.gov.in/bhuvan/gwc/service/wms', {
     layers: 'bhuvan_no_data', 
@@ -175,7 +174,8 @@ async function initVista() {
             fillOpacity: 0 // Transparent
           }
         });
-        vistaBaseMap.addTo(map);
+        // vistaBaseMap is loaded but not automatically added to the map, 
+        // as Admin Boundary overlay handles borders now.
       }
     } catch (e) {
       console.error("Failed to load India GeoJSON:", e);
